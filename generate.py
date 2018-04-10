@@ -8,10 +8,6 @@ from textblob import TextBlob
 script_dir = os.path.dirname(__file__)
 text = open(os.path.join(script_dir,"text.txt"))
 
-#meme = input("MEEEME")
-
-#text = open("text.txt","r")
-
 text_string = text.read()
 text_arr = text_string.split()
 text_sentences = re.split('[?.!]', text_string)
@@ -68,8 +64,15 @@ def getPart(root,major_vec,minor_vec,char_of_string,other_rhythm):
     s = music21.stream.Part()
     current_sentiment_spot = 0
 
-    numerator = len(text_arr)%2+3
-    denom = 4
+    numerator = 0
+    if len(text_arr)%2 == 0:
+	#even
+	numerator = 4
+    else:
+	#odd
+	numerator = 3
+
+    denom = (len(num_sentences)%3+1)*2
 
     meter = music21.meter.TimeSignature(str(numerator)+"/"+str(denom))
     tempo = music21.tempo.MetronomeMark(number=200)
@@ -154,7 +157,7 @@ def generateXML(major, minor, rhythm_list):
 
 def printScaleChoices():
     for i in range(0,len(scales)):
-        print(str(i)+")"+" "+scale_names[i]+": "+str(scales[0]))
+        print(str(i)+")"+" "+scale_names[i]+": "+str(scales[i]))
     print("11) Custom")
 
 def enterCustom():
