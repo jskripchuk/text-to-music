@@ -64,18 +64,19 @@ def getPart(root,major_vec,minor_vec,char_of_string,other_rhythm):
     s = music21.stream.Part()
     current_sentiment_spot = 0
 
-    numerator = 0
+    denom = 0
     if len(text_arr)%2 == 0:
-	#even
-	numerator = 4
+    #even
+        denom = 4
     else:
-	#odd
-	numerator = 3
+    #odd
+        denom = 8
 
-    denom = (len(num_sentences)%3+1)*2
+    numerator = (num_sentences%3+1)*2
 
     meter = music21.meter.TimeSignature(str(numerator)+"/"+str(denom))
-    tempo = music21.tempo.MetronomeMark(number=200)
+    calc_tempo = len(text_arr)%80+60
+    tempo = music21.tempo.MetronomeMark(number=calc_tempo)
     s.append(tempo)
     s.append(meter)
 
@@ -204,12 +205,7 @@ print("So for example, if you want whole notes, half notes, and eight notes it w
 
 custom_rhythm = enterCustom()
 
+print("Generating, please wait...")
 generateXML(positive_scale,negative_scale,custom_rhythm)
+print("Done!")
 
-#have them input it
-#rhythms = [2,1,.5]
-
-#master_stream.append(babby_stream)
-
-
-#master_stream.show()
