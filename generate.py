@@ -6,7 +6,7 @@ import os
 from textblob import TextBlob
 
 script_dir = os.path.dirname(__file__)
-text = open(os.path.join(script_dir,"text.txt"))
+text = open(os.path.join(script_dir,"lemis.txt"))
 
 text_string = text.read()
 text_arr = text_string.split()
@@ -95,15 +95,31 @@ def getPart(root,major_vec,minor_vec,char_of_string,other_rhythm):
 
     index = 0
     for string in text_arr:
+        
         word_stat = TextBlob(string)
-        running_array[current_sentiment_spot] = TextBlob(string).sentiment.polarity
+        word_sent = TextBlob(string).sentiment.polarity
+        running_array[current_sentiment_spot] = word_sent
         current_sentiment_spot = (current_sentiment_spot+1)%array_size
         average_sent = calculateAverageSentiment()
+
+        lyric_to_add = string
+
+        if word_sent > 0:
+            lyric_to_add = "("+lyric_to_add+")"
+        else:
+            lyric_to_add = "<"+lyric_to_add+">"
+
+        prev_vec = current_interval_vector
 
         if average_sent >= 0:
             current_interval_vector = major_vec
         else:
             current_interval_vector = minor_vec
+
+        if prev_vec != current_interval_vector:
+            lyric_to_add += " |||| "
+
+        
 
         #second line reverses rhythm line
         #start on second thing of strings
@@ -118,7 +134,11 @@ def getPart(root,major_vec,minor_vec,char_of_string,other_rhythm):
 
         append_note = music21.note.Note(prev)
         append_note.quarterLength = other_rhythm[index]
-        append_note.lyric = string
+
+        
+
+        append_note.lyric = lyric_to_add
+        append_note.color = "#ff0000"
         s.append(append_note)
 
         index+=1
