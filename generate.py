@@ -1,15 +1,19 @@
 import os
 import re
 import music21
+import sys
 import random
 import os
 from textblob import TextBlob
+from collections import deque
 
 script_dir = os.path.dirname(__file__)
-text = open(os.path.join(script_dir,"lemis.txt"))
+text = open(os.path.join(script_dir,sys.argv[1]))
 
 text_string = text.read()
 text_arr = text_string.split()
+
+#Removing punctuation
 text_sentences = re.split('[?.!]', text_string)
 num_sentences = len(text_sentences)
 
@@ -26,6 +30,7 @@ whole_tone = [0, 2, 4, 6, 8, 10]
 octatonic = [0, 1, 3, 4, 6, 7, 9, 10]
 twelve_tone = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
+#Giving names to all of our scales
 scales = [major_penta,minor_penta,major,aeolian,harmonic_minor,
 mixolydian,lydian,phrygian,whole_tone,octatonic,twelve_tone]
 scale_names = ["Major Pentatonic", "Minor Pentatonic", "Diatonic Major",
@@ -33,17 +38,11 @@ scale_names = ["Major Pentatonic", "Minor Pentatonic", "Diatonic Major",
 "Octatonic","Twelve Tone"]
 
 
-
-#print(len(text_sentences))
-
-#print(len(text_arr))
-
-
-
-
+#How big the buffer size is
 array_size = 10
-sentiment_average = 0
 running_array = [0]*array_size
+
+sentiment_average = 0
 
 def calculateAverageSentiment():
     sum = 0
@@ -52,6 +51,8 @@ def calculateAverageSentiment():
     return sum/array_size
 
 
+#Generates a list of rhythms based off of an array of text
+#Uses the ASCII code of the last letter of the given word. (Shifts array over using rotate number )
 def generateRhythm(rotate,rhythm_list):
     new_r = []
     for string in text_arr:
@@ -65,6 +66,7 @@ def getPart(root,major_vec,minor_vec,char_of_string,other_rhythm):
     current_sentiment_spot = 0
 
     denom = 0
+    #Change denominator of time sig if number of words in corpus is even or odd
     if len(text_arr)%2 == 0:
     #even
         denom = 4
@@ -72,8 +74,10 @@ def getPart(root,major_vec,minor_vec,char_of_string,other_rhythm):
     #odd
         denom = 8
 
+    #Numerator is 2, 3 or 4
     numerator = (num_sentences%3+1)*2
 
+    #Setting up xml
     meter = music21.meter.TimeSignature(str(numerator)+"/"+str(denom))
     calc_tempo = len(text_arr)%80+60
     tempo = music21.tempo.MetronomeMark(number=calc_tempo)
@@ -81,6 +85,7 @@ def getPart(root,major_vec,minor_vec,char_of_string,other_rhythm):
     s.append(meter)
 
     #root = 48
+    #Default to major vector
     current_interval_vector = major_vec
 
     prev = root+current_interval_vector[random.randint(0, len(current_interval_vector)-1)]
@@ -106,18 +111,25 @@ def getPart(root,major_vec,minor_vec,char_of_string,other_rhythm):
 
         if word_sent > 0:
             lyric_to_add = "("+lyric_to_add+")"
-        else:
+        elif word_sent < 0:
             lyric_to_add = "<"+lyric_to_add+">"
+        else:
+            lyric_to_add = "["+lyric_to_add+"]"
 
         prev_vec = current_interval_vector
 
-        if average_sent >= 0:
-            current_interval_vector = major_vec
-        else:
+        if current_interval_vector == major_vec and word_sent < 0:
             current_interval_vector = minor_vec
+        elif current_interval_vector == minor_vec and word_sent > 0:
+            current_interval_vector = major_vec
+
+        #if average_sent >= 0:
+        #    current_interval_vector = major_vec
+        #else:
+        #    current_interval_vector = minor_vec
 
         if prev_vec != current_interval_vector:
-            lyric_to_add += " |||| "
+            lyric_to_add = " |||| " + lyric_to_add
 
         
 
@@ -154,7 +166,10 @@ time_numerator = 2
 def generateXML(major, minor, rhythm_list):
     first_rhythm = generateRhythm(0,rhythm_list)
     reversed_rhythm = list(reversed(first_rhythm))
-    third_rhythm = generateRhythm(1,rhythm_list)
+    third_rhythm = deque(first_rhythm)
+    third_rhythm.rotate(num_sentences)
+    #(first_rhythm)
+    #third_rhythm = generateRhythm(1,rhythm_list)
 
     root=48
     selected_major = major
