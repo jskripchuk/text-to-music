@@ -3,12 +3,13 @@ import re
 import music21
 import sys
 import random
+import codecs
 import os
 from textblob import TextBlob
 from collections import deque
 
 script_dir = os.path.dirname(__file__)
-text = open(os.path.join(script_dir,sys.argv[1]))
+text = codecs.open(os.path.join(script_dir,sys.argv[1]), encoding='utf-8', errors='ignore')
 
 text_string = text.read()
 text_arr = text_string.split()
