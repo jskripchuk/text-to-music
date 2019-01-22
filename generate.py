@@ -220,13 +220,24 @@ def enterCustom():
 #print(result)
 print("====================")
 print("Welcome to the Music Generation Thingy!")
-print("Make sure your .txt file is in the same directory as this python file")
 print("This program will generate music based off of the general sentiment of the text")
 
 print("First, type in a time signature for the piece. (4/4, 6/8, 12/8, etc.)")
 print("Leave blank to automatically generate one!")
 
-time_sig_string = input("Time Sig: ")
+while True:
+    time_sig_string = input("Time Sig: ")
+
+    if time_sig_string == "":
+        break
+
+    time_sig_split = time_sig_string.split("/")
+    denom = int(time_sig_split[1])
+    if denom == 2 or denom == 4 or denom == 8 or denom == 16:
+        break
+    else:
+        print("Denominator must be 2, 4, 8, or 16!")
+
 
 
 print("First, choose a scale for when the text's sentiment is positive. (Just type the number)")
@@ -240,7 +251,7 @@ if choice == 11:
 else:
     positive_scale = scales[choice]
 
-print("Now choose a scale for when the tex'ts sentiment is negative.")
+print("Now choose a scale for when the text's sentiment is negative.")
 printScaleChoices()
 choice = int(input("Choice: "))
 
