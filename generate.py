@@ -61,10 +61,12 @@ def generateRhythm(rotate,rhythm_list):
 
     return new_r
 
+time_sig_string = ""
 
 def getPart(root,major_vec,minor_vec,char_of_string,other_rhythm):
     s = music21.stream.Part()
     current_sentiment_spot = 0
+
 
     denom = 0
     #Change denominator of time sig if number of words in corpus is even or odd
@@ -77,6 +79,12 @@ def getPart(root,major_vec,minor_vec,char_of_string,other_rhythm):
 
     #Numerator is 2, 3 or 4
     numerator = (num_sentences%3+1)*2
+
+    if time_sig_string != "":
+        time_sig_split = time_sig_string.split("/")
+        numerator = time_sig_split[0]
+        denom = time_sig_split[1]
+
 
     #Setting up xml
     meter = music21.meter.TimeSignature(str(numerator)+"/"+str(denom))
@@ -214,6 +222,13 @@ print("====================")
 print("Welcome to the Music Generation Thingy!")
 print("Make sure your .txt file is in the same directory as this python file")
 print("This program will generate music based off of the general sentiment of the text")
+
+print("First, type in a time signature for the piece. (4/4, 6/8, 12/8, etc.)")
+print("Leave blank to automatically generate one!")
+
+time_sig_string = input("Time Sig: ")
+
+
 print("First, choose a scale for when the text's sentiment is positive. (Just type the number)")
 printScaleChoices()
 choice = int(input("Choice: "))
